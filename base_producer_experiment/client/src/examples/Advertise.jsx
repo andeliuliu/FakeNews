@@ -15,20 +15,27 @@ import {
     const stage = useStage();
     const roundNumberText = 'round' + roundNumber;
     //console.log('roundNumberText', roundNumberText);
+
     function handleChange() {
       console.log("something happened");
     }
+
     function handleSubmit() {
       console.log("Player.stage set to true");
 
       player.set(roundNumberText.concat("_choices"),
       [player.round.get("productionQuality"),
+      player.round.get("warrantQuality"),
       player.round.get("advertisementQuality"),
       player.round.get("priceOfProduct"),
-      player.round.get("productionCost")])
+      player.round.get("productionCost"),
+      player.round.get("warrantCost")])
 
       player.stage.set("submit", true);//player.stage.submit();
     }
+    
+    player.round.set("warrantCost", 0)
+    const advertisementQuality = player.round.get("advertisementQuality");
 
     function handleProductionChoice(e, productionQuality, cost) {
       player.round.set("productionQuality",productionQuality);
@@ -36,6 +43,14 @@ import {
       if (player.round.get("productionQuality") === "high"){player.round.set("productionCost", 9)}     
       console.log("Saved production quality to player.round object: ", productionQuality);
       console.log("Saved production cost to player.round object: ", player.round.get("productionCost"));
+    }
+
+    function handleWarrantChoice(e, warrantQuality, cost) {
+      player.round.set("warrantQuality", warrantQuality);
+      if(player.round.get("warrantQuality") == "No"){player.round.set("warrantCost", 0)}
+      if(player.round.get("warrantQuality") == "Yes"){player.round.set("warrantCost", 2)}
+      console.log("Saved warrant quality to player.round object: ", warrantQuality);
+      console.log("Saved warrant cost to player.round object: ", player.round.get("warrantCost"));
     }
     
     function handleAdverisementChoice(e, advertisementQuality) {
@@ -82,31 +97,54 @@ import {
     return (
       <div className="md:min-w-96 lg:min-w-128 xl:min-w-192 flex flex-col items-center space-y-10">
         {}
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <div>
-        <h1><b>You are a producer of toothpaste.</b> </h1>
-        <h1>You will now decide what to produce, how to advertise it and the price.</h1>
-
-        </div>
-
+        {/*Select Product Quality */}
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        
+        {advertisementQuality == "high" && 
+          <>
+            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+            <br/><br/><br/><br/><br/><br/><br/><br/>
+          </>
+        }
+
         <h1><b>You are a producer of toothpaste</b></h1>
           <h1><b>Choose what to produce.</b> All your products this round will be the quality you select. <br/> Your current choice is to produce: <b>{player.round.get("productionQuality")} </b> quality toothspaste.</h1>
           <div className="flex justify-center space-x-4"> {/* This flex container will lay out its children (products) in a row */}
-          <ProductionAlternative title="Standard Toothpaste" cost="5" quality="low" imageUrl={"url(/images/toothpastestandard.jpg)"} on_button_click={(e) => handleProductionChoice(e, "low")}/>
-          <ProductionAlternative title="Amazing Toothpaste" cost="9" quality="high" imageUrl={"url(/images/toothpaseamazing.jpg)"} on_button_click={(e) => handleProductionChoice(e, "high")}/> {/*Here we need to pass what kind of advertisement option the player chose*/ }
-        </div>
+            <ProductionAlternative title="Standard Toothpaste" cost="5" quality="low " imageUrl={"url(/images/toothpastestandard.jpg)"} on_button_click={(e) => handleProductionChoice(e, "low")}/>
+            <ProductionAlternative title="Amazing Toothpaste" cost="9" quality="high " imageUrl={"url(/images/toothpaseamazing.jpg)"} on_button_click={(e) => handleProductionChoice(e, "high")}/> {/*Here we need to pass what kind of advertisement option the player chose*/ }
+          </div>
+
         <br/><br/><br/><br/><br/><br/><br/>
           <h1><b>Choose how you want to advertise it.</b> All your products will be advertised this way.</h1>
           <p>When people are buying, they will only know the price and the advertised quality.
             They will not know the true quality until they have bought the product.</p> <br/>
           <p><strong>Note: </strong>You have the ability to make any kind of advertisement<br/> about your product in order to maximize your sales.</p>
           <p>Your current choice is to advertise your product as: <b>{player.round.get("advertisementQuality")} </b> quality toothspaste.</p>
+
           <div className="flex justify-center space-x-4"> {/* This flex container will lay out its children (products) in a row */}
-          <AdvertisementAlternative title="Standard Toothpaste (low quality)"  quality="low" imageUrl={"url(/images/toothpastestandard.jpg)"} on_button_click={(e) => handleAdverisementChoice(e, "low")}/>
-          <AdvertisementAlternative title="Amazing Toothpaste (high quality)"  quality="high" imageUrl={"url(/images/toothpaseamazing.jpg)"} on_button_click={(e) => handleAdverisementChoice(e, "high")}/>
-        </div>
+            <AdvertisementAlternative title="Standard Toothpaste (low quality)"  quality="low" imageUrl={"url(/images/toothpastestandard.jpg)"} on_button_click={(e) => handleAdverisementChoice(e, "low")}/>
+            <AdvertisementAlternative title="Amazing Toothpaste (high quality)"  quality="high" imageUrl={"url(/images/toothpaseamazing.jpg)"} on_button_click={(e) => handleAdverisementChoice(e, "high")}/>
+          </div>
+
+        {/* WARRANT */}
+        {advertisementQuality == "high" && (
+          <>
+            <br/><br/><br/><br/><br/><br/><br/>
+            <h1><b>Choose whether you want to add a warrant.</b> All your products will be covered with this warrant.</h1>
+            <p>When people are buying, they will know that you are willing to put up money to insure the quality of the product.</p> <br/>
+            <p><strong>Note: </strong>You have the ability to make any kind of warrant<br/> about your product in order to maximize your sales.</p>
+            <p>But if the quality falls shorts of the warrant, you are at risk of losing money</p>
+            <p>Your current choice is to warrant your product: <b>{player.round.get("warrantQuality")} </b></p>
+            <div className="flex justify-center space-x-4"> {/* This flex container will lay out its children (products) in a row */}
+              <WarrantAlternative title="No Warrant"  warrant="no" imageUrl={"url(/images/toothpastestandard.jpg)"} on_button_click={(e) => handleWarrantChoice(e, "No")}/>
+              <WarrantAlternative title="Add Warrant" warrant=" " imageUrl={"url(/images/toothpaseamazing.jpg)"} on_button_click={(e) => handleWarrantChoice(e, "Yes")}/>            
+            </div>
+          </>
+        )}
+        
+
         <br/><br/><br/><br/><br/>
           <h1><b>Choose the price for your product</b></h1>
 
@@ -116,8 +154,8 @@ import {
 
           <p>Your current choice is to sell at a price of: <b>$ {player.round.get("priceOfProduct")} </b></p>
           <div className="flex justify-center space-x-4"> 
-          <PriceButton text={'$10'} on_button_click={(e) => handlePriceChoice(e, 10)}></PriceButton>
-          <PriceButton text={'$15'} on_button_click={(e) => handlePriceChoice(e, 15)}></PriceButton>
+            <PriceButton text={'$10'} on_button_click={(e) => handlePriceChoice(e, 10)}></PriceButton>
+            <PriceButton text={'$15'} on_button_click={(e) => handlePriceChoice(e, 15)}></PriceButton>
           </div>
           <ProfitMarginCalculation producerPlayer = {player}/>
 
@@ -140,7 +178,7 @@ import {
         <div
           className="h-full w-full bg-contain bg-center bg-no-repeat"
           style={{
-            backgroundImage:imageUrl
+            backgroundImage: imageUrl
               //"url(https://media.istockphoto.com/id/638349734/photo/ttoothpaste-containers-on-white-isolated-background.jpg?s=612x612&w=0&k=20&c=eF1XyMlRaQLI9ETehA3_7En5_3D41GX7FKb8cIWeP8k=)",
               //"url(https://i.ibb.co/fF6mWV6/toothpastehigh.jpg)"
               //"url(/root/bucode/empirica-dev/sverre_experiment_test_claims/client/public/images/toothpaseamazing.jpg)" 
@@ -156,7 +194,7 @@ import {
         </div>
         <Button handleClick={on_button_click} adQuality={quality} primary>
           💸 Produce this quality at a cost of ${cost} per unit
-            </Button>
+        </Button>
       </div>
     );
   }
@@ -179,9 +217,32 @@ import {
         </div>
         <Button handleClick={on_button_click} adQuality={quality} primary>
           📣 Advertise as {quality} quality
-            </Button>
+        </Button>
       </div>
     );
+  }
+
+  function WarrantAlternative({ title, imageUrl, warrant, on_button_click}){
+    return (
+      <div className="h-50 w-50 pb-6">
+        <div
+          className="h-full w-full bg-contain bg-center bg-no-repeat"
+          style={{
+            backgroundImage:
+              imageUrl
+              //"url(https://media.istockphoto.com/id/638349734/photo/ttoothpaste-containers-on-white-isolated-background.jpg?s=612x612&w=0&k=20&c=eF1XyMlRaQLI9ETehA3_7En5_3D41GX7FKb8cIWeP8k=)",
+          }}
+          alt={title}
+        />
+        <div className="flex">
+          <h2>{title}. <br/> </h2>
+          {/*{price} points per unit sold</h2>*/}
+        </div>
+        <Button handleClick={on_button_click} adWarrant={warrant} primary>
+          📣 Advertise with {warrant} warrant
+        </Button>
+      </div>
+    )
   }
 
   function PriceButton({text, price, on_button_click}){
@@ -216,12 +277,13 @@ import {
   }
 
 
-  function ProfitMarginCalculation({producerPlayer}){
-    let profit = producerPlayer.round.get("priceOfProduct") - producerPlayer.round.get("productionCost")
+  function  ProfitMarginCalculation({producerPlayer}){
+    let profit = producerPlayer.round.get("priceOfProduct") - producerPlayer.round.get("productionCost") - producerPlayer.round.get("warrantCost")
     return(
       <div>
-        
-        <p>You have chosen to produce <b>{producerPlayer.round.get("productionQuality")}</b> quality toothpaste and advertise it as <b>{producerPlayer.round.get("advertisementQuality")}</b> quality toothpase at a <b>price of ${producerPlayer.round.get("priceOfProduct")}</b>.</p>
+      
+        <p>You have chosen to produce <b>{producerPlayer.round.get("productionQuality")}</b>  quality toothpaste and advertise it as <b>{producerPlayer.round.get("advertisementQuality")}</b>  
+        quality toothpase at a <b>price of ${producerPlayer.round.get("priceOfProduct")} with ${producerPlayer.round.get("warrantCost")} in warrants </b>.</p>
         <h1><p>This gives a <b>profit of  ${profit}</b> per product sold.</p></h1>
 
       </div>

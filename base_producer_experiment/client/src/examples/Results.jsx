@@ -10,9 +10,10 @@ export function SalesResults({roundNumber}) {
   
   //const adQuality = player.get("adQuality");
   const productionQuality = player.get(roundNumberText.concat("_choices"))[0]
-  const advertisementQuality = player.get(roundNumberText.concat("_choices"))[1]
-  const priceOfProduct = player.get(roundNumberText.concat("_choices"))[2]
-  const productionCost = player.get(roundNumberText.concat("_choices"))[3]
+  const advertisementQuality = player.get(roundNumberText.concat("_choices"))[2]
+  const priceOfProduct = player.get(roundNumberText.concat("_choices"))[3]
+  const productionCost = player.get(roundNumberText.concat("_choices"))[4]
+  const warrantCost = player.get(roundNumberText.concat("_choices"))[5]   
   let imageUrl = "";
   //console.log('roundNumberText', roundNumberText)
   if (advertisementQuality === "high") {
@@ -26,21 +27,83 @@ export function SalesResults({roundNumber}) {
   //let points = 10;
   let points = priceOfProduct
 
-  const min = 10;
-  const max = 90;
+  let min = 10;
+  let max = 90;
+  let reportedChance = Math.random()
+  let reported = false;
   
-  //  switch (advertisementQuality){
-  //    case "high":
-  //      switch (priceOfProduct) {case "high": min = 50; break; case "low": min = 70; break;
-  //      };
-  //    case "low":
-  //      switch (priceOfProduct) {case "high": min =10, max=20; break; case "low": min = 50, max = 80; break;}
-  //  }
-  const numBuyers = Math.floor((Math.random() * (max - min ) + min)) ;
+  // can only report if advertising is high, warrantCost is 2, and quality is low
+  switch (advertisementQuality) {
+    case "high":
+      console.log(advertisementQuality, points, warrantCost)
+      if (productionQuality == "high") { // high quality product
+        if(warrantCost === 2){
+          min = 60
+          max = 80
+          console.log(min, max)
+        }
+        else {
+          min = 40
+          max = 60
+          console.log(min, max)
 
+        }
 
-  const salesCount = numBuyers * (priceOfProduct - productionCost);
-  const finalScore = currentScore + salesCount
+      } else { // low quality product
+        if(warrantCost === 2) {
+          min = 70;
+          max = 90;
+          console.log(min, max)
+          if(reportedChance > 0.5) {
+            reported = true
+          }
+
+        }
+        else {
+          min = 50
+          max = 70
+          console.log(min, max)
+
+        }
+      }
+      break;
+    case "low":
+      if (points > 10) {
+        min = 10;
+        max = 20;
+        console.log(min, max)
+
+      } else {
+        min = 50;
+        max = 80;
+        console.log(min, max)
+
+      }
+      break;
+    default:
+      break;
+  }
+  console.log(min, max)
+  console.log(advertisementQuality, reported, reportedChance)
+  const numBuyers = Math.floor(Math.random() * (max - min) + min);
+  
+  let finalScore = 0
+  let fined = 0
+
+  const salesCount = numBuyers * (priceOfProduct - productionCost - warrantCost);
+  
+
+  if(priceOfProduct == 10) {
+    fined = 2 * numBuyers
+  } else {
+    fined = 3 * numBuyers;
+  }
+
+  if(reported){
+    finalScore = currentScore - fined
+  } else {
+    finalScore = salesCount + currentScore
+  }
 
   function handleSubmit() {
     console.log('Moving on from results round');
@@ -60,27 +123,52 @@ export function SalesResults({roundNumber}) {
         </p>
         <p>
           You chose to advertise it as a <b>{advertisementQuality}</b> quality product.
-        You sold it at a price of <b>${priceOfProduct}</b>.
-        <br /> <br />
+        <p>
+          You chose to spend <b>{warrantCost}</b> on a warrant.
         </p>
-
-        <img src={imageUrl} alt="Toothpaste Standard" width="250" height="250"/>
-
-        
+        You sold it at a price of <b>${priceOfProduct}</b>.
+        <br/> <br/>
+        </p>
         <p>
           It was advertised to an audience of 100 users, and {numBuyers} users bought your product.
         </p>
-        <p> 
-          You earned ${priceOfProduct - productionCost}  per product x {numBuyers} units sold = {salesCount} points in sales.
-        </p><br/>
-        <p> Your score for this round is: {salesCount} </p>
-        <p> Your total score is: {salesCount + currentScore} </p><br/>
-        <p> 
-          Click to proceed to the next round to sell products in this marketplace.
-        </p>
+        <img src={imageUrl} alt="Toothpaste Standard" width="250" height="250"/>
+        {console.log(imageUrl)}
+      
+
+        {reported ? (
+          <>
+            <p>
+              Oh no! Someone has challenged your warrant and now you have to pay a fine! 
+            </p><br/>
+            <p>
+              You are being charged ${fined} in total fines
+            </p>
+            <p>
+              Your fine for this round is: {fined}
+            </p>
+            <p>
+              Your total score is: {finalScore}
+            </p>
+            <p> 
+              Click to proceed to the next round to sell products in this marketplace.
+            </p>
+          </>
+        ) : (
+          <>
+            <p> 
+              You earned ${priceOfProduct - productionCost - warrantCost} per product x {numBuyers} units sold = {salesCount} points in sales.
+            </p><br/>
+            <p> Your score for this round is: {salesCount} </p>
+            <p> Your total score is: {finalScore} </p><br/>
+            <p> 
+              Click to proceed to the next round to sell products in this marketplace.
+            </p>
+          </>
+        )}
       </div>
       <Button handleClick={handleSubmit} primary>
-        I'm done!
+        I'm done! 
       </Button>
     </div>
   );

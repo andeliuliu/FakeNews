@@ -11,9 +11,9 @@ export function MineSweeper() {
   }
 
   return (
-    <div className="md:min-w-96 lg:min-w-128 xl:min-w-192 flex flex-col items-center space-y-10">
+    <div className="md:min-w-96 lg:min-w-128 xl:min-w-192 flex flex-col items-center space-y-10 border-2">
       <Sweeper avatar={Avatar} />
-
+        HELLo
       <Button handleClick={handleSubmit} primary>
         I'm done!
       </Button>
